@@ -8,7 +8,13 @@ ACTIONS = (LEFT, UP, RIGHT, DOWN) = tuple(range(4))
 
 
 class Game:
+    """
+    2048 game.
+    """
     def __init__(self, n: int = 4):
+        """
+        :param n: The board size will be n x n.
+        """
         self.n = n
         self.score = 0
         self.board = np.zeros((n, n), np.uint32)
@@ -18,6 +24,9 @@ class Game:
 
     @property
     def over(self) -> bool:
+        """
+        :return: Whether the game is over.
+        """
         if 0 in self.board:
             return False
         for i in range(1, self.n):
@@ -29,11 +38,19 @@ class Game:
         return True
 
     def copy(self):
+        """
+        :return: A copy of the game.
+        """
         copy = Game(self.n)
         copy.board = self.board.copy()
         return copy
 
     def fill(self, action: int = None) -> None:
+        """
+        Fill a 2 on the board.
+        :param action: Last action, it will feel the filling position.
+                       Default: None.
+        """
         if action == LEFT:
             board = self.board[:, 1:]
         elif action == UP:
@@ -47,6 +64,11 @@ class Game:
         board[tuple(choice(np.array(np.where(board == 0)).T))] = 2
 
     def move(self, action: int) -> bool:
+        """
+        Move the board once.
+        :param action: Direction of movement, must be one of ACTIONS.
+        :return: Whether it can be moved.
+        """
         if action == LEFT:
             moved = False
             for line in self.board:
@@ -73,10 +95,16 @@ class Game:
         return moved
 
     def step(self, action: int) -> None:
+        """
+        Perform an action.
+        """
         if self.move(action):
             self.fill(action)
 
     def restart(self) -> None:
+        """
+        Restart the game.
+        """
         self.score = 0
         self.board *= 0
         for _ in range(2):
@@ -84,11 +112,20 @@ class Game:
 
 
 class Interface(Game):
+    """
+    2048 game interface.
+    """
     def __init__(self,
                  n: int = 4,
                  pad: int = 10,
                  size: int = 100,
                  name: str = "2048"):
+        """
+        :param n: Same as n of Game. Default: 4.
+        :param pad: Distance between adjacent cells. Default: 10.
+        :param size: Interface size. Default: 100.
+        :param name: Interface name. Default: '2048'
+        """
         pg.init()
         self.pad = pad
         self.size = size
@@ -101,6 +138,11 @@ class Interface(Game):
         self.interface.fill(self.colors["BG"])
 
     def step(self, action: int, pause: float = 0.1) -> bool:
+        """
+        :param action: Action to be performed.
+        :param pause: Time interval to move to fill. Default: 0.1. Unit: s.
+        :return: Whether the game is over.
+        """
         if self.move(action):
             self.update()
             sleep(pause)
@@ -109,6 +151,10 @@ class Interface(Game):
         return self.over
 
     def update(self) -> None:
+        """
+        Update game interface.
+        No animation effect temporarily >_< !
+        """
         y = self.pad
         self.check_quit()
         for line in self.board:
@@ -133,17 +179,24 @@ class Interface(Game):
         pg.display.update()
 
     def restart(self) -> None:
+        """
+        Restart the game.
+        """
         super().restart()
         self.update()
 
     @staticmethod
     def check_quit():
+        """
+        Check whether to quit.
+        """
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 exit()
 
 
+# human play
 if __name__ == "__main__":
     over = False
     game = Interface()

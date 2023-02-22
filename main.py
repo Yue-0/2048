@@ -14,6 +14,6 @@ while not over:
     over = game.step(AI(game))
     t += cfg.time - time.time()
     if t >= 0:
-        time.sleep(t)
+        time.sleep(t)  # Prevent too fast action
 while True:
-    game.check_quit()
+    game.check_quit()  # Game is over, wait to quit

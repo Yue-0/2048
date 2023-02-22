@@ -7,8 +7,8 @@ __English__ | [简体中文](README_cn.md)
 This project is the final assignment of my sophomore Python programming course.
 This project contents include:
 
-* Use NumPy to realize 2048 game;
-* Use PyGame to display 2048 interface;
+* Use NumPy to realize the 2048 game;
+* Use PyGame to display the 2048 interface;
 * Implementation of a 2048 AI based on Monte Carlo search algorithm.
 
 My AI can reach 2048 or higher in almost every game.
@@ -43,7 +43,7 @@ cd ./2048
 
 ### 2.Install requirements
 
-Requirements are include：
+Requirements are include:
 * numpy
 * pygame
 
@@ -51,11 +51,19 @@ Requirements are include：
 pip install -r requirements.txt
 ```
 
-### 3.Let AI play 2048 game
+### 3.Let AI play the 2048 game
 
 ```shell
 python main.py
 ```
+
+### Human can also play the 2048 game
+
+```shell
+python game.py
+```
+
+Use W/S/A/D to control board movement.
 
 ## Shortcomings
 

@@ -53,6 +53,14 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### 人类也可以玩2048
+
+```shell
+python game.py
+```
+
+使用 W/S/A/D 来控制方向。
+
 ## 不足
 
 本项目还存在许多不足之处，例如：

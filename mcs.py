@@ -2,10 +2,17 @@ import game
 
 
 class MonteCarloSearch:
+    """
+    Monte Carlo search algorithm.
+    """
     def __init__(self, step: int):
         self.step = step
 
     def __call__(self, board: game.Game) -> int:
+        """
+        :param board: Game situation.
+        :return: Best action.
+        """
         value, results, scores = 0, [], self.simulate(board)
         for action in scores:
             score = scores[action]
@@ -17,6 +24,11 @@ class MonteCarloSearch:
         return game.choice(results)
 
     def simulate(self, board: game.Game) -> dict:
+        """
+        Simulate the current game situation.
+        :param board: Game situation.
+        :return: Score of each action.
+        """
         step = 0
         result = dict(zip(game.ACTIONS, ([], [], [], [])))
         while step < self.step:
@@ -33,4 +45,8 @@ class MonteCarloSearch:
 
     @staticmethod
     def score(board: game.Game) -> int:
-        return board.score
+        """
+        :param board: Game situation.
+        :return: Score of game situation.
+        """
+        return board.score  # Modify here to make AI stronger
