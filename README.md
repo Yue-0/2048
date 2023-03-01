@@ -22,7 +22,7 @@ The programming language used in this project is Python 3.9.
 ├── color.json        # Define the color of the interface
 ├── config.py         # Configurations
 ├── font.ttf          # Font file
-├── game.py           # 2048 game
+├── game.py           # The 2048 game
 ├── icon.jpeg         # Interface icon
 ├── LICENSE           # LICENSE
 ├── main.py           # Main program
