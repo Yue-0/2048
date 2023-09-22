@@ -34,7 +34,7 @@ class MonteCarloSearch:
         while step < self.step:
             copy = board.copy()
             action = game.choice(game.ACTIONS)
-            if copy.move(action):
+            if copy.move(action).any():
                 step += 1
                 copy.fill(action)
                 while not copy.over:

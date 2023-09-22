@@ -4,7 +4,6 @@ __English__ | [简体中文](README_cn.md)
 
 ## Brief Introduction
 
-This project is the final assignment of my sophomore Python programming course.
 This project contents include:
 
 * Use NumPy to realize the 2048 game;
@@ -63,13 +62,12 @@ python main.py
 python game.py
 ```
 
-Use W/S/A/D to control board movement.
+Use ↑/↓/←/→ to control board movement.
 
 ## Shortcomings
 
 There are still many deficiencies in this project, such as:
 
-* The interface has no animation effect;
 * The score function is not carefully designed;
 * The updated cell is only 2, but it should be 2 or 4;
 * ...

@@ -4,7 +4,8 @@ from random import choice
 import numpy as np
 import pygame as pg
 
-ACTIONS = (LEFT, UP, RIGHT, DOWN) = tuple(range(4))
+ACTION = ("left ", "up   ", "right", "down ")
+ACTIONS = (LEFT, UP, RIGHT, DOWN) = tuple(range(len(ACTION)))
 
 
 class Game:
@@ -63,34 +64,34 @@ class Game:
             board = self.board
         board[tuple(choice(np.array(np.where(board == 0)).T))] = 2
 
-    def move(self, action: int) -> bool:
+    def move(self, action: int) -> np.ndarray:
         """
         Move the board once.
         :param action: Direction of movement, must be one of ACTIONS.
         :return: Whether it can be moved.
         """
         if action == LEFT:
-            moved = False
-            for line in self.board:
+            moved = np.zeros_like(self.board, np.uint8)
+            for row, line in enumerate(self.board):
                 left = 0
                 for right in range(1, self.n):
                     if line[right]:
                         if line[right] == line[left]:
-                            moved = True
                             line[right] = 0
                             line[left] <<= 1
                             self.score += line[left]
+                            moved[row, right] = right - left + 1
                             left += 1
                         else:
                             if line[left]:
                                 left += 1
                             line[left] = line[right]
                             if right > left:
-                                moved = True
                                 line[right] = 0
+                                moved[row, right] = right - left + 1
         else:
             self.board = np.rot90(self.board, action)
-            moved = self.move(LEFT)
+            moved = np.rot90(self.move(LEFT), -action)
             self.board = np.rot90(self.board, -action)
         return moved
 
@@ -98,7 +99,7 @@ class Game:
         """
         Perform an action.
         """
-        if self.move(action):
+        if self.move(action).any():
             self.fill(action)
 
     def restart(self) -> None:
@@ -119,7 +120,8 @@ class Interface(Game):
                  n: int = 4,
                  pad: int = 10,
                  size: int = 100,
-                 name: str = "2048"):
+                 name: str = "2048",
+                 speed: float = 0.1):
         """
         :param n: Same as n of Game. Default: 4.
         :param pad: Distance between adjacent cells. Default: 10.
@@ -127,6 +129,7 @@ class Interface(Game):
         :param name: Interface name. Default: '2048'
         """
         pg.init()
+        self.dp = speed
         self.pad = pad
         self.size = size
         pg.display.set_caption(name)
@@ -135,7 +138,6 @@ class Interface(Game):
         self.colors = eval(open("color.json").read())
         pg.display.set_icon(pg.image.load("icon.jpeg"))
         self.interface = pg.display.set_mode((n * size + (n + 1) * pad,) * 2)
-        self.interface.fill(self.colors["BG"])
 
     def step(self, action: int, pause: float = 0.1) -> bool:
         """
@@ -143,39 +145,68 @@ class Interface(Game):
         :param pause: Time interval to move to fill. Default: 0.1. Unit: s.
         :return: Whether the game is over.
         """
-        if self.move(action):
-            self.update()
-            sleep(pause)
+        board = self.board.copy()
+        if (moved := self.move(action)).any():
+            board, self.board = self.board, board
+            for progress in np.arange(0, 1, self.dp):
+                self.update(action, moved, progress)
+            sleep(self.dp)
+            self.board = board
             self.fill(action)
             self.update()
-        return self.over
+            print(f"Action: {ACTION[action]}\tScore: {self.score}")
+            return self.over
+        print(f"Action: {ACTION[action]}\tScore: {self.score}\t Cannot moved")
+        return True
 
-    def update(self) -> None:
+    def clear(self):
+        d = self.pad + self.size
+        self.interface.fill(self.colors["BG"])
+        for x in range(self.n):
+            for y in range(self.n):
+                pg.draw.rect(
+                    self.interface,
+                    self.colors["background"]['0'],
+                    (self.pad + x * d, self.pad + y * d, self.size, self.size)
+                )
+
+    def update(self,
+               action: int = None,
+               moved: np.ndarray = None,
+               progress: float = 0) -> None:
         """
         Update game interface.
         No animation effect temporarily >_< !
         """
         y = self.pad
+        self.clear()
         self.check_quit()
-        for line in self.board:
+        dxy = self.size + self.pad
+        if moved is None:
+            moved = np.zeros_like(self.board, np.uint8)
+        for r, line in enumerate(self.board):
             x = self.pad
-            for number in map(str, line):
-                pg.draw.rect(
-                    self.interface,
-                    self.colors["background"][number],
-                    (x, y, self.size, self.size)
-                )
-                if number != "0":
+            for c, number in enumerate(map(str, line)):
+                if number != '0':
+                    dx, dy = 0, 0
+                    if moved[r, c]:
+                        if action % 2:
+                            dy = int(dxy * progress * np.sign(action - 1.5))
+                        else:
+                            dx = int(dxy * progress * np.sign(action - 1.5))
+                    pg.draw.rect(
+                        self.interface,
+                        self.colors["background"][number],
+                        (x + dx, y + dy, self.size, self.size)
+                    )
                     number = self.font.render(
                         number, True, self.colors["number"][number]
                     )
-                    self.interface.blit(
-                        number,
-                        (x + (self.size - number.get_width()) // 2,
-                         y + (self.size - self.pad * 4) // 2)
-                    )
-                x += self.size + self.pad
-            y += self.size + self.pad
+                    x0 = x + (self.size - number.get_width()) // 2
+                    y0 = y + (self.size - number.get_height()) // 2
+                    self.interface.blit(number, (x0 + dx, y0 + dy))
+                x += dxy
+            y += dxy
         pg.display.update()
 
     def restart(self) -> None:
@@ -200,12 +231,19 @@ class Interface(Game):
 if __name__ == "__main__":
     over = False
     game = Interface()
+    ACTIONS = {
+        pg.K_UP: UP,
+        pg.K_DOWN: DOWN,
+        pg.K_LEFT: LEFT,
+        pg.K_RIGHT: RIGHT
+    }
     game.restart()
-    ACTIONS = {pg.K_w: UP, pg.K_s: DOWN, pg.K_a: LEFT, pg.K_d: RIGHT}
     while not over:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 pg.quit()
                 exit()
             if e.type == pg.KEYDOWN and e.key in ACTIONS:
-                over = game.step(ACTIONS[e.key])
+                game.step(ACTIONS[e.key])
+                over = game.over
+    print("Game over\t\t Score:", game.score)
