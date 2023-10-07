@@ -16,7 +16,6 @@
 ```
 2048
 ├── color.json        # 定义界面的颜色
-├── config.py         # 定义相关配置
 ├── font.ttf          # 字体文件
 ├── game.py           # 2048游戏
 ├── icon.jpeg         # 界面图标

@@ -1,11 +1,9 @@
-import time
-
-import config as cfg
 from game import Interface
 from mcs import MonteCarloSearch
 
+STEP = 100
 
-game, AI = Interface(), MonteCarloSearch(cfg.step)
+game, AI = Interface(), MonteCarloSearch(STEP)
 
 over = False
 game.restart()

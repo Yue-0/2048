@@ -14,14 +14,14 @@ class Game:
     """
     def __init__(self, n: int = 4):
         """
-        :param n: The board size will be n x n.
+        :param n: The board size will be n x n. Default: 4.
         """
         self.n = n
         self.score = 0
         self.board = np.zeros((n, n), np.uint32)
 
     def __str__(self):
-        return "\n".join(["\t".join(map(str, line)) for line in self.board])
+        return '\n'.join(['\t'.join(map(str, line)) for line in self.board])
 
     @property
     def over(self) -> bool:
@@ -68,7 +68,7 @@ class Game:
         """
         Move the board once.
         :param action: Direction of movement, must be one of ACTIONS.
-        :return: Whether it can be moved.
+        :return: The distance moved by each grid.
         """
         if action == LEFT:
             moved = np.zeros_like(self.board, np.uint8)
@@ -126,7 +126,9 @@ class Interface(Game):
         :param n: Same as n of Game. Default: 4.
         :param pad: Distance between adjacent cells. Default: 10.
         :param size: Interface size. Default: 100.
-        :param name: Interface name. Default: '2048'
+        :param name: Interface name. Default: '2048'.
+        :param speed: The speed at which the grid moves, between 0 and 1.
+                      A larger value means a faster speed. Default: 0.1.
         """
         pg.init()
         self.dp = speed
@@ -139,13 +141,13 @@ class Interface(Game):
         pg.display.set_icon(pg.image.load("icon.jpeg"))
         self.interface = pg.display.set_mode((n * size + (n + 1) * pad,) * 2)
 
-    def step(self, action: int, pause: float = 0.1) -> bool:
+    def step(self, action: int) -> bool:
         """
         :param action: Action to be performed.
-        :param pause: Time interval to move to fill. Default: 0.1. Unit: s.
         :return: Whether the game is over.
         """
         board = self.board.copy()
+        print("Action: {}".format(ACTION[action]), end="\tScore: ")
         if (moved := self.move(action)).any():
             board, self.board = self.board, board
             for progress in np.arange(0, 1, self.dp):
@@ -154,12 +156,15 @@ class Interface(Game):
             self.board = board
             self.fill(action)
             self.update()
-            print(f"Action: {ACTION[action]}\tScore: {self.score}")
-            return self.over
-        print(f"Action: {ACTION[action]}\tScore: {self.score}\t Cannot moved")
-        return True
+            print(self.score)
+        else:
+            print(self.score, "\t Cannot moved")
+        return self.over
 
-    def clear(self):
+    def clear(self) -> None:
+        """
+        Clear interface.
+        """
         d = self.pad + self.size
         self.interface.fill(self.colors["BG"])
         for x in range(self.n):
@@ -176,7 +181,9 @@ class Interface(Game):
                progress: float = 0) -> None:
         """
         Update game interface.
-        No animation effect temporarily >_< !
+        :param action: direction of movement. Default: None.
+        :param moved: The distance moved by each grid. Default: None.
+        :param progress: Movement progress, between 0 and 1. Default: 0.
         """
         y = self.pad
         self.clear()
@@ -231,7 +238,7 @@ class Interface(Game):
 if __name__ == "__main__":
     over = False
     game = Interface()
-    ACTIONS = {
+    inputs = {
         pg.K_UP: UP,
         pg.K_DOWN: DOWN,
         pg.K_LEFT: LEFT,
@@ -243,7 +250,9 @@ if __name__ == "__main__":
             if e.type == pg.QUIT:
                 pg.quit()
                 exit()
-            if e.type == pg.KEYDOWN and e.key in ACTIONS:
-                game.step(ACTIONS[e.key])
+            if e.type == pg.KEYDOWN and e.key in inputs:
+                game.step(inputs[e.key])
                 over = game.over
     print("Game over\t\t Score:", game.score)
+    while True:
+        game.check_quit()

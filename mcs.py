@@ -1,5 +1,7 @@
 import game
 
+np = game.np
+
 
 class MonteCarloSearch:
     """
