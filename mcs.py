@@ -38,7 +38,7 @@ class MonteCarloSearch:
             action = game.choice(game.ACTIONS)
             if copy.move(action).any():
                 step += 1
-                copy.fill(action)
+                copy.fill()
                 while not copy.over:
                     game.Interface.check_quit()
                     copy.step(game.choice(game.ACTIONS))
@@ -51,4 +51,4 @@ class MonteCarloSearch:
         :param board: Game situation.
         :return: Score of game situation.
         """
-        return board.score  # Modify here to make AI stronger
+        return board.score  # TODO: Modify here to make AI stronger

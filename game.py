@@ -19,9 +19,18 @@ class Game:
         self.n = n
         self.score = 0
         self.board = np.zeros((n, n), np.uint32)
+        self.__log2 = {1 << p: p for p in range(1, n ** 2 + 1)}
+        self.__log2[0] = 0
 
     def __str__(self):
         return '\n'.join(['\t'.join(map(str, line)) for line in self.board])
+
+    @property
+    def log2(self) -> np.ndarray:
+        """
+        Calculate the logarithm of each number on the board.
+        """
+        return np.array([self.__log2[n] for n in self.board.flatten()])
 
     @property
     def over(self) -> bool:
@@ -46,23 +55,11 @@ class Game:
         copy.board = self.board.copy()
         return copy
 
-    def fill(self, action: int = None) -> None:
+    def fill(self) -> None:
         """
         Fill a 2 on the board.
-        :param action: Last action, it will feel the filling position.
-                       Default: None.
         """
-        if action == LEFT:
-            board = self.board[:, 1:]
-        elif action == UP:
-            board = self.board[1:, :]
-        elif action == DOWN:
-            board = self.board[:-1, :]
-        elif action == RIGHT:
-            board = self.board[:, :-1]
-        else:
-            board = self.board
-        board[tuple(choice(np.array(np.where(board == 0)).T))] = 2
+        self.board[tuple(choice(np.array(np.where(self.board == 0)).T))] = 2
 
     def move(self, action: int) -> np.ndarray:
         """
@@ -100,7 +97,7 @@ class Game:
         Perform an action.
         """
         if self.move(action).any():
-            self.fill(action)
+            self.fill()
 
     def restart(self) -> None:
         """
@@ -154,7 +151,7 @@ class Interface(Game):
                 self.update(action, moved, progress)
             sleep(self.dp)
             self.board = board
-            self.fill(action)
+            self.fill()
             self.update()
             print(self.score)
         else:
