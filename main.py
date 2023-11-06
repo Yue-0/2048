@@ -1,3 +1,4 @@
+import time
 from warnings import warn
 from argparse import ArgumentParser
 
@@ -18,6 +19,9 @@ arg.add_argument(
 arg.add_argument(
     "--method", default="mcs", type=str, help="AI method, 'mcs' or 'mms'"
 )
+arg.add_argument(
+    "--time", default=0.7, type=float, help="Minimum time per move (seconds)"
+)
 arg = arg.parse_args()
 if arg.size <= 0:
     raise ValueError("size must be a positive integer.")
@@ -25,6 +29,14 @@ if arg.size > 4:
     warn(' '.join([
         "The board size is too large,",
         "you may encounter some errors."
+    ]))
+if arg.time < 0:
+    raise ValueError("size must be a positive integer.")
+T = arg.time
+if arg.time > 2:
+    warn(' '.join([
+        "The time is too large,",
+        "so you may need to wait for a long time."
     ]))
 over, game = False, Interface(arg.size)
 if arg.method.lower() == "mcs":
@@ -53,7 +65,9 @@ else:
     ]))
 game.restart()
 while not over:
+    t = time.time()
     over = game.step(AI(game))
+    time.sleep(max(0, T - time.time() + t))
 print("Game over\t\t Score:", game.score)
 while True:
     game.check_quit()  # Game is over, wait to quit

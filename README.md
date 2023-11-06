@@ -68,12 +68,13 @@ python main.py --method mms --depth 3  # The AI's strategy is max-min search wit
 
 All command line parameters for main.py are shown in the table below.
 
-| Parameter | Type | Default | Description                                                                                                                                             |
-|:----------|:----:|:-------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| --method  | str  |   mcs   | AI strategy, must be mcs or mms                                                                                                                         |
-| --size    | int  |    4    | The size of the game board must be a positive integer. Excessively large values may cause errors. When --method is mms, the default value must be used. |
-| --step    | int  |   100   | The step of Monte Carlo search, must be a positive integer. Too large a value will cause the program to run slowly.                                     |
-| --depth   | int  |    2    | The Mini-max search depth, must be a positive integer. Too large a value will cause the program to run slowly.                                          |
+| Parameter | Type  | Default | Description                                                                                                                                             |
+|:----------|:-----:|:-------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --method  |  str  |   mcs   | AI strategy, must be mcs or mms                                                                                                                         |
+| --size    |  int  |    4    | The size of the game board must be a positive integer. Excessively large values may cause errors. When --method is mms, the default value must be used. |
+| --step    |  int  |   100   | The step of Monte Carlo search, must be a positive integer. Too large a value will cause the program to run slowly.                                     |
+| --depth   |  int  |    2    | The Mini-max search depth, must be a positive integer. Too large a value will cause the program to run slowly.                                          |
+| --time    | float |   0.7   | Minimum time per move (seconds)                                                                                                                         |
 
 You can also run the code below directly to view them.
 
