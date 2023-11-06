@@ -58,7 +58,7 @@ class MiniMaxSearch:
                 board.board[y, x] = 2
                 scores.append(self.search(board, depth + 1))
                 board.board[y, x] = 0
-            return min(scores)  # It seems impossible for scores to be empty
+            return min(scores) if scores else 0
         else:
             scores = [-np.inf] * len(game.ACTIONS)
             for a, action in enumerate(game.ACTIONS):
