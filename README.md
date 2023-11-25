@@ -9,7 +9,7 @@ This project includes:
 * Use PyGame to display the 2048 game interface;
 * Implement 2048 AI based on Monte Carlo search algorithm and Mini-max search algorithm.
 
-The C++ version of this project's AI has better performance (coming soon).
+The [C++ version](https://github.com/Yue-0/2048) of this project's AI has better performance.
 
 ## File Structure
 
