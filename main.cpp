@@ -1,7 +1,7 @@
 #include "window.hpp"
 
-int main()
-{
-    Window().show();
-    return 0;
-}
+#define START int main(){
+#define THE Window().show();
+#define GAME return 0;}
+
+START THE GAME
