@@ -3,80 +3,63 @@
 ## 简介
 
 本项目内容包括：
-* 使用 Python 实现 2048 游戏；
-* 使用 PyGame 显示 2048 游戏界面；
-* 基于蒙特卡洛搜索算法和最大最小搜索算法实现 2048 AI。
+* 使用 C++ 实现 2048 游戏；
+* 使用 OpenCV 显示 2048 游戏界面；
+* 基于最大最小搜索算法实现 2048 AI。
 
-本项目的 C++ 版本的 AI 具有更优秀的性能（即将发布）。
+本项目提供 Python 版本，Python 版本的 AI 使用蒙特卡洛搜索算法和最大最小搜索算法分别实现，详见 [Python 分支](https://github.com/Yue-0/2048/tree/Python)。
 
 ## 文件结构
 
 ```
 2048
-├── color.json        # 定义界面的颜色
-├── font.ttf          # 字体文件
-├── game.py           # 2048 游戏
-├── icon.jpeg         # 界面图标
-├── LICENSE           # LICENSE
-├── main.py           # 主程序
-├── mcs.py            # 蒙特卡洛搜索算法
-├── mms.py            # 最大最小搜索算法
-├── README.md         # 英文说明文件
-├── README_cn.md      # 中文说明文件
-└── requirements.txt  # 依赖库列表
+├── ai.hpp          # AI 代码
+├── CMakeLists.txt  # CMake 文件
+├── game.hpp        # 2048 游戏代码
+├── LICENSE         # LICENSE
+├── main.cpp        # 主程序
+├── README_cn.md    # 中文说明文件
+├── README.md       # 英文说明文件
+└── window.hpp      # 可视化窗口代码
 ```
 
 ## 快速开始
 
-### 1.克隆项目
+### 1.检查环境
+
+本项目依赖 OpenCV（C++），如果你没有配置 OpenCV，请先编译并配置 OpenCV（C++）。
+
+建议 OpenCV 的版本不低于 4.5.5。
+
+### 2.克隆项目
 
 ```shell
 git clone https://github.com/Yue-0/2048.git
 cd ./2048
 ```
 
-### 2.安装依赖
+### 3.编译代码
 
-项目依赖的库包括：
-* numpy
-* pygame
+本项目使用 CMake 进行编译。
 
 ```shell
-pip install -r requirements.txt
+mkdir build
+cd ./build
+cmake ..
+make
 ```
 
-### 3.使用键盘开始游戏
+编译成功后，会在 build 文件夹中生成编译结果。
 
-运行 game.py 来使用键盘进行游戏，请使用 ↑/↓/←/→ 控制方向。
+### 4.运行程序
+
+直接启动 main 即可开始运行程序。
 
 ```shell
-python game.py
+./main
 ```
 
-### 4.让 AI 开始游戏
-
-运行 main.py 即可让 AI 开始游戏，你可以通过命令行参数指定 AI 的策略：
-
-```shell
-python main.py --method mcs --step 50  # AI 的策略为蒙特卡洛搜索，次数为 50（默认 100）
-python main.py --method mms --depth 3  # AI 的策略为最大最小搜索，深度为 3（默认 2）
-```
-
-main.py 的所有命令行参数如下表所示。
-
-| 参数名      |  类型   | 默认值 | 说明                                                    |
-|:---------|:-----:|:---:|:------------------------------------------------------|
-| --method |  str  | mcs | AI 的策略，必须为 mcs 或 mms                                  |
-| --size   |  int  |  4  | 游戏棋盘的大小，必须为正整数，过大的值可能会带来错误，当 --method 为 mms 时，必须使用默认值 |
-| --step   |  int  | 100 | 蒙特卡洛搜索的次数，必须为正整数，过大的值会导致程序运行缓慢                        |
-| --depth  |  int  |  2  | 最大最小搜索的深度，必须为正整数，过大的值会导致程序运行缓慢                        |
-| --time   | float | 0.7 | 每次移动的最短时间（秒）                                          |
-
-你也可以直接运行下面的代码来查看它们。
-
-```shell
-python main.py --help
-```
+启动程序后，会出现一个窗口，点击 “AI” 即可让 AI 开始游戏，点击 “Keyboard” 即可使用键盘开始游戏，你需要使用 ↑/↓/←/→ 来控制方向。
 
 ## 不足
 
