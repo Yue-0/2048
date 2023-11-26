@@ -112,7 +112,6 @@ Window::Window()
     mode = WAIT;
     running = true;
     srand(time(0));
-    srand(28);
     game.restart();
     int size = S * SIZE + (S + 1) * PAD;
     image = cv::Mat(size, size, CV_8UC3);
