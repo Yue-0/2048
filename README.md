@@ -7,9 +7,14 @@ __English__ | [简体中文](README_cn.md)
 This project includes:
 * Use C++ to implement the 2048 game;
 * Use OpenCV to display the 2048 game interface;
-* Implement 2048 AI based on Mini-max search algorithm.
+* Implement 2048 AI based on Alpha-beta pruning search algorithm and use multi-threaded search;
+* The main program uses asynchronous processing technology, and the AI can search while updating the game screen.
 
-This project provides a Python version. The Python version of AI is implemented using the Monte Carlo search algorithm and the max-min search algorithm respectively. For details, see the [Python branch](https://github.com/Yue-0/2048/tree/Python).
+The probability of the AI achieved by this project reaching 2048 or higher is about 63%, and the maximum value reached in 100 games is as follows:
+
+| Maximum   | 512 | 1024 | 2048 | 4096 |
+| :-------: | :-: | :--: | :--: | :--: |
+| frequency | 9   | 28   | 48   | 15   |
 
 ## File Structure
 
@@ -62,12 +67,3 @@ Start main directly to start running the program.
 ```
 
 After starting the program, a window will appear. Click "AI" to let the AI start the game. Click "Keyboard" to start the game using the keyboard. You need to use ↑/↓/←/→ to control the direction.
-
-## Shortcomings
-
-There are still many deficiencies in this project, such as:
-
-* The search tree is not pruned;
-* The score function is not carefully designed;
-* The updated cell is only 2, but it should be 2 or 4;
-* ...

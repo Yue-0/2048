@@ -6,19 +6,20 @@
 #include "ai.hpp"
 #include "opencv2/opencv.hpp"
 
-#define DEPTH 3
+#define DEPTH 4
 
 #define PAD 10
 #define SIZE 100
 #define SCALE 2.0
 #define NAME "2048"
 #define THICKNESS 3
+#define RET think.join(); return;
 #define FONT1 cv::FONT_HERSHEY_TRIPLEX
 #define FONT2 cv::FONT_HERSHEY_SCRIPT_COMPLEX
+#define ESC std::cout << "\rESC            " << std::endl; restart();
+#define CHECK if(!running) {RET} if(key == 27) {mode = WAIT; ESC RET}
 
 #define swap(a, b) a += b; b = a - b; a -= b;
-#define ESC std::cout << "\rESC                 " << std::endl; restart();
-#define CHECK if(!running) return; if(key == 27) {mode = WAIT; ESC return;}
 
 class Window
 {
@@ -29,15 +30,17 @@ class Window
         bool over();
         void show();
         void restart();
-        void step(enum Action);
+        void move(enum Action);
         enum Mode{WAIT, AUTO, KEYBOARD, OVER} mode;
     
     private:
         Game game;
+        uint step;
         bool running;
         cv::Mat image;
+        enum Action cache;
         AI ai = AI(DEPTH);
-        cv::Scalar colors[S2 + 1] = {
+        cv::Scalar colors[S2 + 2] = {
             cv::Scalar::all(0),
             cv::Scalar(101, 110, 119),
             cv::Scalar(101, 110, 119),
@@ -54,9 +57,10 @@ class Window
             cv::Scalar(242, 246, 249),
             cv::Scalar(101, 110, 119),
             cv::Scalar(101, 110, 119),
+            cv::Scalar(242, 246, 249),
             cv::Scalar(242, 246, 249)
         };
-        cv::Scalar backgrounds[S2 + 1] = {
+        cv::Scalar backgrounds[S2 + 2] = {
             cv::Scalar(138, 148, 158),
             cv::Scalar(218, 228, 238),
             cv::Scalar(200, 224, 237),
@@ -73,7 +77,8 @@ class Window
             cv::Scalar( 46, 194, 237),
             cv::Scalar(121, 177, 242),
             cv::Scalar( 99, 149, 245),
-            cv::Scalar( 95, 124, 246)
+            cv::Scalar( 95, 124, 246),
+            cv::Scalar( 59,  94, 246)
         };
         std::string actions[4] = {"left ", "up   ", "right", "down "};
 
@@ -111,8 +116,8 @@ Window::Window()
 {
     mode = WAIT;
     running = true;
-    srand(time(0));
-    game.restart();
+    // srand(time(0));
+    srand(2);
     int size = S * SIZE + (S + 1) * PAD;
     image = cv::Mat(size, size, CV_8UC3);
     std::cout << "Welcome to 2048 game!" << std::endl;
@@ -148,13 +153,20 @@ void Window::show()
             break;
         if(key == 27)
         {
-            mode = WAIT;
-            ESC continue;
+            if(mode != WAIT)
+            {
+                mode = WAIT;
+                ESC continue;
+            }
         }
-        if(mode == AUTO)
-            step(ai.inference(game));
+        else if(mode == AUTO)
+        {
+            if(!step++)
+                cache = ai.inference(game);
+            move(cache);
+        }
         else if(mode == KEYBOARD && 0x51 <= key && key <= 0x54)
-            step((enum Action)(key - 0x51));
+            move((enum Action)(key - 0x51));
     }
 }
 
@@ -175,10 +187,10 @@ void Window::update()
 
 void Window::restart()
 {
-    game.restart(); update();
+    step = 0; game.restart(); update();
 }
 
-void Window::step(enum Action action)
+void Window::move(enum Action action)
 {
     uint8 board[S][S];
     FOR board[i][j] = game.board[i][j];
@@ -187,8 +199,15 @@ void Window::step(enum Action action)
     {
         uint8 key;
         float progress;
+        std::thread think;
+        Game copy = game.copy();
+        bool end = (copy.fill(), copy.over());
+        if(mode == AUTO && !end)
+            think = std::thread([&]{cache = ai.inference(copy.copy());});
+        else
+            think = std::thread([]{;});
         FOR{swap(game.board[i][j], board[i][j])}
-        for(progress = 0; progress <= 1; progress += 1e-2)
+        for(progress = 0; progress <= 1; progress += 0.01)
         {
             update(action, progress);
             key = show(image, 1); CHECK
@@ -196,23 +215,24 @@ void Window::step(enum Action action)
         key = show(image, 5); CHECK
         FOR game.board[i][j] = board[i][j];
         cv::Mat img = image.clone(); update();
-        for(progress = 0; progress <= 1; progress += 0.2)
+        for(progress = 0; progress <= 1; progress += 0.1)
         {
             cv::Mat p = progress * image + (1 - progress) * img;
             key = show(p, 10); CHECK
         }
-        img = image.clone(); game.fill(); update();
-        for(progress = 0; progress <= 1; progress += 0.2)
+        img = image.clone(); FOR game.board[i][j] = copy.board[i][j];
+        for(update(), progress = 0; progress <= 1; progress += 0.1)
         {
             cv::Mat p = progress * image + (1 - progress) * img;
             key = show(p, 10); CHECK
         }
         std::cout << "\tScore: " << score() << std::endl;
-        if(game.over())
+        if(end)
         {
             mode = OVER;
             std::cout << "Game over. Score: " << score() << std::endl;
         }
+        think.join();
     }
     else
         std::cout << "\tcannot move" << std::endl;
@@ -273,7 +293,7 @@ void Window::update(int action, float progress)
                         cv::rectangle(image, cv::Rect(
                             x + dx, y + dy, SIZE, SIZE
                         ), backgrounds[num], -1);
-                        text = std::to_string(game.pow[num]);
+                        text = std::to_string(POW[num]);
                         float scale = SCALE - (text.length() - 1) / 3.0;
                         size = cv::getTextSize(text, FONT2, scale, THICKNESS, &down);
                         cv::putText(image, text, cv::Point(
