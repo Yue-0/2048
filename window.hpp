@@ -116,8 +116,7 @@ Window::Window()
 {
     mode = WAIT;
     running = true;
-    // srand(time(0));
-    srand(2);
+    srand(time(0));
     int size = S * SIZE + (S + 1) * PAD;
     image = cv::Mat(size, size, CV_8UC3);
     std::cout << "Welcome to 2048 game!" << std::endl;
